@@ -138,7 +138,7 @@ deviceId | false| 广告参与者设备号
 淘A平台会返回http状态码为200，body为"ok"。
 </aside>
 
-## 广告商提供查询广告完成状态API(单个查询)
+## 查询单条广告完成状态API(single)
 
 ```nodejs
 
@@ -177,7 +177,7 @@ eventId | true | 广告参与事件ID
 淘A平台会返回http状态码为200，body为"event"对应json对象。
 </aside>
 
-## 广告商提供查询广告完成状态API(批量查询)
+## 批量查询广告完成状态API(batch)
 
 ```nodejs
 
@@ -190,7 +190,7 @@ eventId | true | 广告参与事件ID
 > 广告商需返回如下信息：
 
 ```json
-［
+[
   {
     "participantId": "String",
     "eventId": "String",
