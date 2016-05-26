@@ -1,168 +1,137 @@
 ---
-title: API Reference
+title: Taoooa.com接口文档
 
 language_tabs:
   - shell
-  - ruby
-  - python
+  - nodejs
 
-toc_footers:
+<!-- toc_footers:
   - <a href='#'>Sign Up for a Developer Key</a>
-  - <a href='https://github.com/tripit/slate'>Documentation Powered by Slate</a>
 
 includes:
-  - errors
+  - errors -->
 
 search: true
 ---
 
-# Introduction
+# Taoooa.com接口文档
 
-Welcome to the Kittn API! You can use our API to access Kittn API endpoints, which can get information on various cats, kittens, and breeds in our database.
+阅读对象：广告商（需要投放效果营销广告的商户）以及媒体(拥有用户资源)需要在淘A平台投放广告或选择广告涉及的技术架构师，研发工程师，测试工程师，系统运维工程师。
 
-We have language bindings in Shell, Ruby, and Python! You can view code examples in the dark area to the right, and you can switch the programming language of the examples with the tabs in the top right.
+# 名词解释(Dictionary)
 
-This example API documentation page was created with [Slate](https://github.com/tripit/slate). Feel free to edit it and use it as a base for your own API's documentation.
+- actionId(广告完成步骤标识)  
+  广告商投放广告时，需要选择该广告所需完成步骤和完成说明，用于判定用户是否完成广告以及渠道获得的奖励金额。
+- participant(广告参与者)  
+  参与广告的用户信息:
+  ```
+  {
+    participantId: String,
+    mobile: String,
+    email: String,
+    deviceId: String
+  }
+  ```
+  除participantId外，其余属性为可选属性。
+- event(用户参与广告事件)  
+  淘A平台会记录没有用户参与每个广告的事件，事件属性包括:
+  ```
+  {
+    eventId: String,
+    participantId: String,
+    advertiseId: String,
+    ...
+  }
+  ```
+  广告商通过event和participant与淘A平台建立对应关系。
 
-# Authentication
+# 业务流程(Flow)
+  ![flow](business-flow.bmp)
+
+# 授权(Authorize)
 
 > To authorize, use this code:
 
-```ruby
-require 'kittn'
-
-api = Kittn::APIClient.authorize!('meowmeowmeow')
-```
-
-```python
-import kittn
-
-api = kittn.authorize('meowmeowmeow')
-```
-
-```shell
-# With shell, you can just pass the correct header with each request
-curl "api_endpoint_here"
-  -H "Authorization: meowmeowmeow"
-```
-
-> Make sure to replace `meowmeowmeow` with your API key.
-
-Kittn uses API keys to allow access to the API. You can register a new Kittn API key at our [developer portal](http://example.com/developers).
-
-Kittn expects for the API key to be included in all API requests to the server in a header that looks like the following:
-
-`Authorization: meowmeowmeow`
-
 <aside class="notice">
-You must replace <code>meowmeowmeow</code> with your personal API key.
+广告商回调淘A平台API需要使用注册时分配的appkey和对应的签名算法进行授权。
 </aside>
 
-# Kittens
+# 广告商对接(API)
 
-## Get All Kittens
+广告商使用淘A平台需要对接的地方有两处，
+首先广告商需要提供一个API接收广告参与者与参与事件的对应关系；
+然后再用户完成广告后，广告商需要通过上一步记录的对应关系，回调淘A平台更新广告参与事件状态。
 
-```ruby
-require 'kittn'
+## 广告商记录广告参与事件(Event)API
 
-api = Kittn::APIClient.authorize!('meowmeowmeow')
-api.kittens.get
-```
+```nodejs
 
-```python
-import kittn
-
-api = kittn.authorize('meowmeowmeow')
-api.kittens.get()
 ```
 
 ```shell
-curl "http://example.com/api/kittens"
-  -H "Authorization: meowmeowmeow"
+curl -H "Content-Type: application/json"
+     -X POST
+     -d '{ eventId: String, participantId: String, mobile: String, email: String, deviceId: String }'
+     http://host.of.advertiser/api/events
 ```
 
-> The above command returns JSON structured like this:
-
-```json
-[
-  {
-    "id": 1,
-    "name": "Fluffums",
-    "breed": "calico",
-    "fluffiness": 6,
-    "cuteness": 7
-  },
-  {
-    "id": 2,
-    "name": "Max",
-    "breed": "unknown",
-    "fluffiness": 5,
-    "cuteness": 10
-  }
-]
+> 访问该接口需要返回信息如下：
+```
+"ok"
 ```
 
-This endpoint retrieves all kittens.
+### API
 
-### HTTP Request
+`POST http://host.of.advertiser/api/events`  
+`Content-Type: application/json`
+### 请求参数(Body Parameters)
 
-`GET http://example.com/api/kittens`
-
-### Query Parameters
-
-Parameter | Default | Description
+参数 | 一定存在 | 描述
 --------- | ------- | -----------
-include_cats | false | If set to true, the result will also include cats.
-available | true | If set to false, the result will include kittens that have already been adopted.
+participantId | true | 广告参与者ID
+eventId | true | 广告参与事件ID
+mobile | String | 广告参与者手机号
+email | String | 广告参与者邮箱
+deviceId | String| 广告参与者设备号
 
 <aside class="success">
-Remember — a happy kitten is an authenticated kitten!
+广告商需返回http状态码为200，body为"ok"；否则淘A平台会在2小时内多次调用该API。
 </aside>
 
-## Get a Specific Kitten
+## 广告商回调淘A广告参与结果API
 
-```ruby
-require 'kittn'
+```nodejs
 
-api = Kittn::APIClient.authorize!('meowmeowmeow')
-api.kittens.get(2)
-```
-
-```python
-import kittn
-
-api = kittn.authorize('meowmeowmeow')
-api.kittens.get(2)
 ```
 
 ```shell
-curl "http://example.com/api/kittens/2"
-  -H "Authorization: meowmeowmeow"
+curl -H "Content-Type: application/json"
+     -X POST
+     -d '{ eventId: String, participantId: String, mobile: String, email: String, deviceId: String }'
+     http://host.of.advertiser/api/events
 ```
 
-> The above command returns JSON structured like this:
-
-```json
-{
-  "id": 2,
-  "name": "Max",
-  "breed": "unknown",
-  "fluffiness": 5,
-  "cuteness": 10
-}
+> 淘A验证无误后将返回如下信息：
+```
+"ok"
 ```
 
-This endpoint retrieves a specific kitten.
+### API
 
-<aside class="warning">Inside HTML code blocks like this one, you can't use Markdown, so use <code>&lt;code&gt;</code> blocks to denote code.</aside>
+`POST http://api.taoooa.com/events`
 
-### HTTP Request
+### 请求参数(Body Parameters)
 
-`GET http://example.com/kittens/<ID>`
+参数 | 一定存在 | 描述
+--------- | ------- | -----------
+participantId | true | 广告参与者ID
+eventId | true | 广告参与事件ID
+actionId | false | 完成步骤Id
+action | true | 完成步骤说明
+mobile | false | 广告参与者手机号
+email | false | 广告参与者邮箱
+deviceId | false| 广告参与者设备号
 
-### URL Parameters
-
-Parameter | Description
---------- | -----------
-ID | The ID of the kitten to retrieve
-
+<aside class="success">
+淘A平台会返回http状态码为200，body为"ok"。
+</aside>
