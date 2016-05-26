@@ -73,10 +73,7 @@ search: true
 ```
 
 ```shell
-curl -H "Content-Type: application/json"
-     -X POST
-     -d '{ eventId: String, participantId: String, mobile: String, email: String, deviceId: String }'
-     http://host.of.advertiser/api/events
+
 ```
 
 > 访问该接口需要返回信息如下：
@@ -112,7 +109,7 @@ deviceId | String| 广告参与者设备号
 curl -H "Content-Type: application/json"
      -X POST
      -d '{ eventId: String, participantId: String, mobile: String, email: String, deviceId: String }'
-     http://host.of.advertiser/api/events
+     http://api.taoooa.com/events
 ```
 
 > 淘A验证无误后将返回如下信息：
@@ -141,20 +138,18 @@ deviceId | false| 广告参与者设备号
 淘A平台会返回http状态码为200，body为"ok"。
 </aside>
 
-## 广告商提供查询广告完成状态API
+## 广告商提供查询广告完成状态API(单个查询)
 
 ```nodejs
 
 ```
 
 ```shell
-curl -H "Content-Type: application/json"
-     -X POST
-     -d '{ eventId: String, participantId: String, mobile: String, email: String, deviceId: String }'
-     http://host.of.advertiser/api/events
+
 ```
 
 > 广告商需返回如下信息：
+
 ```json
 {
   "participantId": "String",
@@ -180,4 +175,39 @@ eventId | true | 广告参与事件ID
 
 <aside class="success">
 淘A平台会返回http状态码为200，body为"event"对应json对象。
+</aside>
+
+## 广告商提供查询广告完成状态API(批量查询)
+
+```nodejs
+
+```
+
+```shell
+
+```
+
+> 广告商需返回如下信息：
+
+```json
+［
+  {
+    "participantId": "String",
+    "eventId": "String",
+    "actionId": "String",
+    "action": "String",
+    "mobile": "String",
+    "email": "String",
+    "deviceId": "String"
+  },
+  ...
+]
+```
+
+### API
+
+`GET http://host.of.advertiser/api/events`
+
+<aside class="success">
+淘A平台会返回http状态码为200，body为"event"对应json数组。
 </aside>
