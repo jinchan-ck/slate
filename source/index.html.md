@@ -46,7 +46,7 @@ search: true
   广告商通过event和participant与淘A平台建立对应关系。
 
 # 业务流程(Flow)
-  ![flow](business-flow.bmp)
+  ![flow](business-flow.jpg)
 
 # 授权(Authorize)
 
@@ -59,8 +59,11 @@ search: true
 # 广告商对接(API)
 
 广告商使用淘A平台需要对接的地方有两处，
-首先广告商需要提供一个API接收广告参与者与参与事件的对应关系；
-然后再用户完成广告后，广告商需要通过上一步记录的对应关系，回调淘A平台更新广告参与事件状态。
+- 广告商需要提供一个API接收广告参与者与参与事件的对应关系；
+- 用户完成广告后，广告商需要通过上一步记录的对应关系，回调淘A平台更新广告参与事件状态。
+
+**备选**
+如果广告商无法回调广告完成状态，可提供查询状态接口，接口参数列表与返回值需遵循文档标准。
 
 ## 广告商记录广告参与事件(Event)API
 
@@ -119,6 +122,7 @@ curl -H "Content-Type: application/json"
 ### API
 
 `POST http://api.taoooa.com/events`
+`Content-Type: application/json`
 
 ### 请求参数(Body Parameters)
 
@@ -134,4 +138,45 @@ deviceId | false| 广告参与者设备号
 
 <aside class="success">
 淘A平台会返回http状态码为200，body为"ok"。
+</aside>
+
+## 广告商提供查询广告完成状态API
+
+```nodejs
+
+```
+
+```shell
+curl -H "Content-Type: application/json"
+     -X POST
+     -d '{ eventId: String, participantId: String, mobile: String, email: String, deviceId: String }'
+     http://host.of.advertiser/api/events
+```
+
+> 广告商需返回如下信息：
+```json
+{
+  "participantId": "String",
+  "eventId": "String",
+  "actionId": "String",
+  "action": "String",
+  "mobile": "String",
+  "email": "String",
+  "deviceId": "String"
+}
+```
+
+### API
+
+`GET http://host.of.advertiser/api/events`
+
+### 请求参数(Query Parameters)
+
+参数 | 一定存在 | 描述
+--------- | ------- | -----------
+participantId | true | 广告参与者ID
+eventId | true | 广告参与事件ID
+
+<aside class="success">
+淘A平台会返回http状态码为200，body为"event"对应json对象。
 </aside>
